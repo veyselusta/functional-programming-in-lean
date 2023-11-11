@@ -66,6 +66,7 @@ deriving Repr
 
 #eval "one string".append " and another"
 
+
 def Point.modifyBoth (f : Float → Float) (p : Point) : Point :=
   { x := f p.x, y := f p.y }
 
