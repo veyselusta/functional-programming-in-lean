@@ -73,6 +73,9 @@ def lengthImplicit {α : Type} (xs : List α) : Nat :=
 #eval primesUnder10.length
 
 /- More Built-In Datatypes -/
+/- In addition to lists, Lean's standard library contains
+   a number of other structures and inductive datatypes that
+   can be used in a variety of contexts. -/
 
 /- Option -/
 inductive Option2 (α : Type) : Type where
@@ -143,3 +146,98 @@ def howManyDogs (pets : List PetName) : Nat :=
   | Sum.inr _ :: morePets => howManyDogs morePets
 
 #eval howManyDogs animals
+
+/- Unit -/
+/- Unit is a type with just one argumentless constructor,
+   called unit. -/
+
+inductive Unit2 : Type where
+  | unit : Unit2
+
+inductive ArithExpr (ann : Type) : Type where
+  | int : ann → Int → ArithExpr ann
+  | plus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+  | minus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+  | times : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+
+
+/- Additionally, because all Lean functions have arguments,
+   zero-argument functions in other languages can be represented
+   as functions that take a Unit argument. In a return position,
+   the Unit type is similar to void in languages derived from C.
+   In the C family, a function that returns void will return control
+   to its caller, but it will not return any interesting value.  -/
+
+/- Empty -/
+/- The Empty datatype has no constructors whatsoever.
+   Thus, it indicates unreachable code, because no series of calls
+   can ever terminate with a value at type Empty. -/
+
+/- Naming: Sums, Products, and Units -/
+/- Generally speaking, types that offer multiple constructors
+   are called sum types, while types whose single constructor
+   takes multiple arguments are called product types. -/
+
+/- Messages You May Meet -/
+
+inductive MyType (α : Type) : Type where
+  | ctor : α → MyType α
+
+
+inductive MyType2 (α : Type) : Type where
+  | ctor : α → MyType2 α
+deriving Repr
+
+def ofFive : MyType2 Int := MyType2.ctor 5
+
+/- Exercises -/
+/- 1 -/
+/- Write a function to find the last entry in a list. It should return an Option.-/
+def lastEntry (list : List α) : Option α :=
+  match list with
+  | [] => none
+  | [y] => some y
+  | y :: ys => lastEntry ys
+
+#eval lastEntry [1,2,3]
+
+/- 2 -/
+/- Write a function that finds the first entry in a list that satisfies
+   a given predicate. Start the definition with
+   def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α := -/
+
+def findFirst? {α  : Type} (xs : List α) (predicate : α -> Bool) : Option α :=
+ match xs with
+ | [] => none
+ | x :: xs' => if predicate x then some x else findFirst? xs' predicate
+
+
+/- 3 -/
+/- Write a function Prod.swap that swaps the two fields in a pair.
+   Start the definition with
+   def Prod.swap {α β : Type} (pair : α × β) : β × α := -/
+
+def Prod.swap {α β : Type} (p : Prod α β) : Prod β α :=
+{ fst := p.snd, snd := p.fst }
+
+#eval Prod.swap {fst := "hello", snd := 5}
+
+/- 4 -/
+/- Rewrite the PetName example to use a custom datatype
+   and compare it to the version that uses Sum. -/
+
+inductive Animal where
+  | Dog : String → Animal
+  | Cat : String → Animal
+
+def animal : List Animal := [ Animal.Dog "Spot", Animal.Cat "Garfield", Animal.Dog "Rex"]
+
+def howManyDogs2 (animals : List Animal) : Nat :=
+  match animals with
+  | [] => 0
+  | Animal.Dog _ :: rest => 1 + howManyDogs2 rest
+  | Animal.Cat _ :: rest => howManyDogs2 rest
+
+  #eval howManyDogs2 animal
+
+/- 5 -/
